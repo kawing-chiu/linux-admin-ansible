@@ -1,0 +1,13 @@
+---
+asdf_version: "v0.7.6"
+
+asdf_plugins: {}
+# asdf_plugins:
+#   python:
+#     versions:
+#       - 3.7.6
+#     global: 3.7.6
+
+asdf_install_environments:
+  python:
+    PYTHON_CONFIGURE_OPTS: "--enable-shared"

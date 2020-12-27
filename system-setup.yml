@@ -1,0 +1,26 @@
+---
+- hosts: all
+  remote_user: root
+
+  vars_prompt:
+    - name: user_password
+      prompt: Enter a password for user
+      confirm: yes
+
+  tasks:
+    - import_role:
+        name: common
+
+    - name: Create user
+      user:
+        name: "{{ user_name }}"
+        uid: 1080
+        password: "{{ user_password | password_hash('sha512') }}"
+        update_password: on_create
+
+    - name: Add authorized key for user
+      authorized_key:
+        user: "{{ user_name }}"
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+# TODO: partition disk, add fstab entry

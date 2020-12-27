@@ -1,0 +1,60 @@
+---
+- include_tasks: "{{ lookup('first_found', distributions) }}"
+  vars:
+    distributions:
+      - "{{ ansible_facts['distribution'] }}.yml"
+      - unsupported.yml
+
+# This is required for rootless podman container to work under centos 7.
+- name: Set max_user_namespaces
+  sysctl:
+    name: user.max_user_namespaces
+    value: '28633'
+    sysctl_file: /etc/sysctl.d/50-userns.conf
+    reload: yes
+
+- name: Add basic vim config
+  blockinfile:
+    path: /etc/vimrc
+    marker: '""" {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      set hlsearch ignorecase smartcase incsearch
+      set tabstop=4 shiftwidth=4 expandtab
+      set backspace=indent,eol,start
+
+      filetype plugin indent on
+      syntax enable
+
+      nnoremap = gt
+      nnoremap K gt
+      nnoremap J gT
+      nnoremap _ <C-w>v<C-w>T
+      nnoremap Y y$
+
+      nnoremap <C-h> 25zh
+      nnoremap <C-l> 25zl
+      cnoremap <C-a> <C-b>
+
+      nnoremap j gj
+      vnoremap j gj
+      nnoremap gj j
+      vnoremap gj j
+      nnoremap k gk
+      vnoremap k gk
+      nnoremap gk k
+      vnoremap gk k
+
+      nnoremap -p :set paste! paste?<CR>
+      nnoremap -n :setl nu! nu?<CR>
+      nnoremap -l :setl list! list?<CR>
+
+- name: Raise nofile limit
+  pam_limits:
+    domain: '*'
+    limit_type: "{{ item }}"
+    limit_item: nofile
+    value: '65535'
+    use_max: yes
+  loop:
+    - soft
+    - hard

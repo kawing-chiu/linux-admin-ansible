@@ -1,0 +1,53 @@
+---
+- name: Install asdf
+  git:
+    repo: "https://github.com/asdf-vm/asdf.git"
+    dest: "{{ ansible_env.HOME }}/.asdf"
+    version: "{{ asdf_version }}"
+
+- name: Source asdf from user's bashrc
+  blockinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    block: |
+      . $HOME/.asdf/asdf.sh
+      . $HOME/.asdf/completions/asdf.bash
+    marker: '# {mark} - ANSIBLE MANAGED BLOCK - asdf'
+    create: yes 
+
+- name: Install plugins
+  command:
+    cmd: "bash -lc 'asdf plugin-add {{ item.key }}'"
+    creates: "{{ ansible_env.HOME }}/.asdf/plugins/{{ item.key }}"
+  loop: "{{ asdf_plugins | dict2items }}"
+
+- name: Install versions
+  command:
+    cmd: "bash -lc 'asdf install {{ item.0.key }} {{ item.1 }}'"
+    creates: "{{ ansible_env.HOME }}/.asdf/installs/\
+                {{ item.0.key }}/{{ item.1 }}"
+  environment: "{{ asdf_install_environments[item.0.key] | default(omit) }}"
+  loop: "{{ asdf_plugins | dict2items
+            | subelements('value.versions', skip_missing=True) }}"
+  loop_control:
+    label: "[{{ item.0.key }} {{ item.1 }}]"
+
+# TODO: Install some package into the global python environment, e.g. pipx
+
+- name: Get current global versions
+  command:
+    cmd: "bash -lc 'asdf current {{ item.key }}'"
+  loop: "{{ asdf_plugins | dict2items }}"
+  register: current_versions
+  changed_when: no
+  ignore_errors: yes
+
+- name: Set global versions
+  command:
+    cmd: "bash -lc 'asdf global {{ item.item.key }} {{ item.item.value.global }}'"
+  when:
+    - item.item.value.global is defined
+    - item.item.value.global != item.stdout.split()[0]
+  loop: "{{ current_versions.results }}"
+  loop_control:
+    label: "[{{ item.item.key }}]"
+

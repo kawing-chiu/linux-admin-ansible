@@ -1,0 +1,15 @@
+---
+- hosts: all
+  remote_user: "{{ user_name }}"
+
+  tasks:
+    - import_role:
+        name: asdf
+      vars:
+        asdf_plugins:
+          python:
+            versions:
+              - 3.7.6
+            global: 3.7.6
+
+  environment: "{{ proxy_env }}"
