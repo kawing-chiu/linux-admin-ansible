@@ -17,6 +17,7 @@
           [ansible_facts['distribution_major_version']] }}
 
 - debug:
+    # debug的这个var参数比较特殊，默认已经包含了{{ }}，所以要直接放variable
     var: _fedora_dangerous_packages
     verbosity: 2
 
