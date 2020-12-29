@@ -1,5 +1,33 @@
 ---
-yum_packages: ['@development', 'gcc', 'git', 'bash-completion',
+# 有用但官方repository没有，需要通过其它方式安装的工具（考虑用container）：
+#   - v2ray
+#   - frp
+fedora_common_packages:
+  '33': ['@c-development', '@development-tools', '@container-management', '@base-x',
+    '@guest-agents', '@guest-desktop-agents', '@virtualization', '@development-libs',
+    '@server-product-environment', '@server-hardware-support', '@buildsys-build',
+    '@fonts', 'dnf-plugins-core', 'dnf-plugin-system-upgrade', 'bash-completion',
+    'tmux', 'gcc', 'git', 'vim', 'neovim', 'curl', 'wget', 'rsync', 'traceroute',
+    'nmap-ncat', 'tree', 'iperf3', 'pcp', 'htop', 'iotop', 'powertop', 'nethogs',
+    'gdisk', 'testdisk', 'gpg', 'unzip', 'bzip2', 'xz', 'zstd', 'sqlite', 'ack',
+    'ripgrep', 'pipx', 'patchelf', 'podman', 'buildah', 'skopeo', 'runc', 'slirp4netns',
+    'google-noto-emoji-color-fonts', 'wqy-microhei-fonts', 'fontawesome-fonts-web',
+    'fcitx5', 'openvpn', 'openssh', 'wireguard-tools']
+
+# kernel-headers是无所谓的，版本可以比当前使用的kernel更加新。glibc如果用最新的
+# kernel-headers来编译，以后就算更新了kernel也不用重新编译（据gentoo文档）。
+fedora_kernel_packages:
+  '33': ['kernel', 'kernel-core', 'kernel-modules', 'kernel-modules-extra', 'kernel-devel']
+
+# 除了kernel其它可能影响系统稳定性，或需要重启的packages。目前已知需要重启的有：
+#   - systemd
+#   - glibc
+#   - dbus-daemon
+fedora_base_packages:
+  '33': ['glibc', 'systemd']
+
+# Centos is not maintained anymore. To be removed.
+centos_packages: ['@development', 'gcc', 'git', 'bash-completion',
   'bash-completion-extras', 'vim', 'curl', 'wget', 'tmux', 'tree',
   'iperf3', 'dstat', 'htop', 'iotop', 'nethogs', 'gdisk', 'unzip',
   'zlib-devel', 'bzip2', 'bzip2-devel', 'readline-devel', 'sqlite',

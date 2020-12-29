@@ -16,5 +16,14 @@
 
 - name: Install specified packages
   yum:
-    name: "{{ yum_packages }}"
+    name: "{{ centos_packages }}"
     state: latest
+
+# This is required for rootless podman container to work under centos 7.
+- name: Set max_user_namespaces
+  sysctl:
+    name: user.max_user_namespaces
+    value: '28633'
+    sysctl_file: /etc/sysctl.d/50-userns.conf
+    reload: yes
+

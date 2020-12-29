@@ -1,17 +1,11 @@
 ---
+# 这里不能用import_tasks因为要用到facts
 - include_tasks: "{{ lookup('first_found', distributions) }}"
   vars:
     distributions:
       - "{{ ansible_facts['distribution'] }}.yml"
       - unsupported.yml
-
-# This is required for rootless podman container to work under centos 7.
-- name: Set max_user_namespaces
-  sysctl:
-    name: user.max_user_namespaces
-    value: '28633'
-    sysctl_file: /etc/sysctl.d/50-userns.conf
-    reload: yes
+  tags: always
 
 - name: Add basic vim config
   blockinfile:
@@ -22,19 +16,30 @@
       set tabstop=4 shiftwidth=4 expandtab
       set backspace=indent,eol,start
 
+      " Show line number
+      set number relativenumber
+
+      " More reliable syntax highlighting
+      autocmd BufEnter * syntax sync fromstart
+
       filetype plugin indent on
       syntax enable
 
-      nnoremap = gt
+      " Switch to previous/next tab
       nnoremap K gt
       nnoremap J gT
+      " Open current file in new tab
       nnoremap _ <C-w>v<C-w>T
+      " Make Y more like some other commands
       nnoremap Y y$
 
+      " Scroll left/right
       nnoremap <C-h> 25zh
       nnoremap <C-l> 25zl
+      " Use <C-a> to move to the start of line, like in bash
       cnoremap <C-a> <C-b>
 
+      " Use 'display' line movement by default
       nnoremap j gj
       vnoremap j gj
       nnoremap gj j
@@ -44,9 +49,41 @@
       nnoremap gk k
       vnoremap gk k
 
+      " Synonym for j, k, mainly for ipad      
+      nnoremap <C-j> gj
+      vnoremap <C-j> gj
+      nnoremap <C-k> gk             
+      vnoremap <C-k> gk
+
+      " Shortcut to toggle some common options
       nnoremap -p :set paste! paste?<CR>
       nnoremap -n :setl nu! nu?<CR>
       nnoremap -l :setl list! list?<CR>
+
+      " Use :tjump instead of :tag by default
+      nnoremap <C-]> g<C-]>
+      vnoremap <C-]> g<C-]>
+      nnoremap g<C-]> <C-]>
+      vnoremap g<C-]> <C-]>
+
+      " Move the current line to the higher/middle/lower part of the window.
+      nnoremap H zt5<C-y>
+      nnoremap M zz
+
+      function! s:MoveCurrLineLower()
+          normal zb
+          " winheight(0) is the height of the current window.
+          " line('w0') is the line number of the first visible line.
+          let last_line = line('w0') + winheight(0) -1    
+          " getpos('.')[1] or line('.') is the line number of the cursor.
+          let cursor_pos = line('.')
+          let diff = last_line - cursor_pos
+          if diff < 5
+              let move_up = 5 - diff
+              execute 'normal' string(move_up) . "\<C-e>"
+          endif
+      endfunction
+      nnoremap <silent> L :call <SID>MoveCurrLineLower()<CR>
 
 - name: Raise nofile limit
   pam_limits:

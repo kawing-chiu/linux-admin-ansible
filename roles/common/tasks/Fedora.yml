@@ -1,0 +1,72 @@
+---
+- name: Print error if version is unsupported
+  fail:
+    msg: >-
+      Unsupported Fedora version:
+      '{{ ansible_facts['distribution_major_version'] }}'
+  when:
+    - ansible_facts['distribution_major_version'] not in ['33']
+
+# 这里合并了fedora_kernel_packages和fedora_base_packages这两个结构一样的dictionary，得到
+# 一个准备要exclude的package list。
+- name: Create dangerous package list
+  set_fact:
+    # >-是比较好的linebreak方式，会将newline变成space
+    _fedora_dangerous_packages: >-
+      {{ (fedora_kernel_packages | combine(fedora_base_packages, list_merge='append'))
+          [ansible_facts['distribution_major_version']] }}
+
+- debug:
+    var: _fedora_dangerous_packages
+    verbosity: 2
+
+- name: Update all packages except kernel and base packages
+  dnf:
+    name: '*'
+    update_cache: yes
+    state: latest
+    exclude: "{{ _fedora_dangerous_packages }}"
+
+- name: Install specified packages
+  dnf:
+    name: "{{ fedora_common_packages[ansible_facts['distribution_major_version']] }}"
+    state: latest
+
+- name: Update base packages
+  dnf:
+    name: "{{ fedora_base_packages[ansible_facts['distribution_major_version']] }}"
+    update_cache: yes
+    state: latest
+  tags: [ never, update-base, update-dangerous ]
+
+# Fedora的kernel package不会被更新，所有新版本的kernel都是install，和原有的并存。默认保
+# 留最近安装的3个版本的kernel。
+- name: Update kernel
+  dnf:
+    name: "{{ fedora_kernel_packages[ansible_facts['distribution_major_version']] }}"
+    update_cache: yes
+    state: latest
+  tags: [ never, update-kernel, update-dangerous ]
+
+- block:
+    - name: Check if reboot is necessary
+      command: 
+        cmd: 'dnf needs-restarting -r'
+        warn: no
+      register: _result
+      changed_when: no
+      failed_when: _result.rc not in [ 0, 1 ]
+
+    - name: Print messasge if reboot is necessary
+      debug:
+        msg: >-
+          dnf needs-restarting -r reports that reboot is necessary
+      changed_when: _result.rc == 1
+      when:
+        - _result.rc == 1
+  tags: always
+ 
+- name: Reboot
+  reboot:
+  tags: [ never, reboot ]
+
