@@ -13,7 +13,8 @@ fedora_common_packages:
     'gdisk', 'testdisk', 'gpg', 'unzip', 'bzip2', 'xz', 'zstd', 'sqlite', 'ack',
     'ripgrep', 'cloc', 'pipx', 'ansible', 'patchelf', 'podman', 'buildah', 'skopeo',
     'runc', 'slirp4netns', 'google-noto-emoji-color-fonts', 'wqy-microhei-fonts',
-    'fontawesome-fonts-web', 'fcitx5', 'openvpn', 'openssh', 'wireguard-tools']
+    'fontawesome-fonts-web', 'fcitx5', 'openvpn', 'openssh', 'wireguard-tools',
+    'fedora-workstation-repositories']
 
 # kernel-headers是无所谓的，版本可以比当前使用的kernel更加新。glibc如果用最新的
 # kernel-headers来编译，以后就算更新了kernel也不用重新编译（据gentoo文档）。
