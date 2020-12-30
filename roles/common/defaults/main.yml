@@ -2,6 +2,7 @@
 # 有用但官方repository没有，需要通过其它方式安装的工具（考虑用container）：
 #   - v2ray
 #   - frp
+#   - asdf
 fedora_common_packages:
   '33': ['@c-development', '@development-tools', '@container-management', '@base-x',
     '@guest-agents', '@guest-desktop-agents', '@virtualization', '@development-libs',
@@ -10,8 +11,8 @@ fedora_common_packages:
     'tmux', 'gcc', 'git', 'vim', 'neovim', 'curl', 'wget', 'rsync', 'traceroute',
     'nmap-ncat', 'tree', 'iperf3', 'pcp', 'htop', 'iotop', 'powertop', 'nethogs',
     'gdisk', 'testdisk', 'gpg', 'unzip', 'bzip2', 'xz', 'zstd', 'sqlite', 'ack',
-    'ripgrep', 'pipx', 'ansible', 'patchelf', 'podman', 'buildah', 'skopeo', 'runc',
-    'slirp4netns', 'google-noto-emoji-color-fonts', 'wqy-microhei-fonts',
+    'ripgrep', 'cloc', 'pipx', 'ansible', 'patchelf', 'podman', 'buildah', 'skopeo',
+    'runc', 'slirp4netns', 'google-noto-emoji-color-fonts', 'wqy-microhei-fonts',
     'fontawesome-fonts-web', 'fcitx5', 'openvpn', 'openssh', 'wireguard-tools']
 
 # kernel-headers是无所谓的，版本可以比当前使用的kernel更加新。glibc如果用最新的
