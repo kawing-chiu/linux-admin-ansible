@@ -19,6 +19,16 @@
       " Show line number
       set number relativenumber
 
+      " Adjust the format options (used for comment etc.)
+      " n: recognize numbered lists
+      " m: allow to break at a multi-byte character above 255
+      " M: don't insert a space before or after a multi-byte character
+      " o: automatically insert the comment leader after hitting 'o'
+      " r: automatically insert the comment leader after hitting <Enter>
+      set formatoptions+=nmMor
+
+      set textwidth=88
+
       " More reliable syntax highlighting
       autocmd BufEnter * syntax sync fromstart
 
@@ -49,10 +59,10 @@
       nnoremap gk k
       vnoremap gk k
 
-      " Synonym for j, k, mainly for ipad      
+      " Synonym for j, k, mainly for ipad
       nnoremap <C-j> gj
       vnoremap <C-j> gj
-      nnoremap <C-k> gk             
+      nnoremap <C-k> gk
       vnoremap <C-k> gk
 
       " Shortcut to toggle some common options
@@ -69,7 +79,6 @@
       " Move the current line to the higher/middle/lower part of the window.
       nnoremap H zt5<C-y>
       nnoremap M zz
-
       function! s:MoveCurrLineLower()
           normal zb
           " winheight(0) is the height of the current window.
